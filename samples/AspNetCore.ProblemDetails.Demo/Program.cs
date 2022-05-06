@@ -44,8 +44,6 @@ namespace AspNetCore.ProblemDetails.Demo
 			}
 
 			app.UseProblemDetails();
-			// TODO: Switch between UI and API
-			// app.UseStatusCodePages();
 			app.UseHttpsRedirection();
 			app.UseAuthorization();
 			app.MapControllers();

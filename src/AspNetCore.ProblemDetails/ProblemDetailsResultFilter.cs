@@ -4,7 +4,6 @@
 	using System.Net;
 	using Microsoft.AspNetCore.Mvc;
 	using Microsoft.AspNetCore.Mvc.Filters;
-	using Microsoft.AspNetCore.Mvc.Formatters;
 	using Microsoft.AspNetCore.Mvc.Infrastructure;
 	using Microsoft.Extensions.Options;
 
@@ -40,12 +39,12 @@
 			if(result.Value is SerializableError error)
 			{
 				ProblemDetails problemDetails = this.problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, error, result.StatusCode);
-				context.Result = CreateResult(problemDetails);
+				context.Result = Util.CreateResult(problemDetails);
 				return;
 			}
 
 			// Make sure the result should be treated as a problem.
-			if(!IsProblemStatusCode(result.StatusCode))
+			if(!Util.IsProblemStatusCode(result.StatusCode))
 			{
 				return;
 			}
@@ -54,7 +53,7 @@
 			if(result.Value is string detail)
 			{
 				ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, result.StatusCode, detail: detail);
-				context.Result = CreateResult(problemDetails);
+				context.Result = Util.CreateResult(problemDetails);
 				return;
 			}
 
@@ -72,7 +71,7 @@
 					return;
 				}
 
-				context.Result = CreateResult(problemDetails);
+				context.Result = Util.CreateResult(problemDetails);
 			}
 		}
 
@@ -87,30 +86,5 @@
 		///     which clears and sets ObjectResult.ContentTypes.
 		/// </summary>
 		public int Order => 1;
-
-		private static bool IsProblemStatusCode(int? statusCode)
-		{
-			if(statusCode is < 400 or > 599 or null)
-			{
-				return false;
-			}
-
-			return true;
-		}
-
-		private static ObjectResult CreateResult(ProblemDetails problemDetails)
-		{
-			ObjectResult result = new ObjectResult(problemDetails)
-			{
-				StatusCode = problemDetails.Status,
-				ContentTypes = new MediaTypeCollection
-				{
-					"application/problem+json",
-					"application/problem+xml"
-				}
-			};
-
-			return result;
-		}
 	}
 }

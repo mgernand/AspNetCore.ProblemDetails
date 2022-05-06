@@ -10,7 +10,6 @@
 	using Microsoft.AspNetCore.Http;
 	using Microsoft.AspNetCore.Mvc;
 	using Microsoft.AspNetCore.Mvc.Abstractions;
-	using Microsoft.AspNetCore.Mvc.Formatters;
 	using Microsoft.AspNetCore.Mvc.Infrastructure;
 	using Microsoft.AspNetCore.Routing;
 	using Microsoft.Extensions.Logging;
@@ -181,15 +180,7 @@
 			RouteData routeData = httpContext.GetRouteData();
 			ActionContext actionContext = new ActionContext(httpContext, routeData, new ActionDescriptor());
 
-			ObjectResult result = new ObjectResult(problemDetails)
-			{
-				StatusCode = httpContext.Response.StatusCode,
-				ContentTypes = new MediaTypeCollection
-				{
-					"application/problem+json",
-					"application/problem+xml"
-				}
-			};
+			ObjectResult result = Util.CreateResult(problemDetails);
 
 			await this.actionResultExecutor.ExecuteAsync(actionContext, result);
 

@@ -9,8 +9,7 @@
 		{
 			Guard.Against.Null(response);
 
-			// A status code between (including) 400 and 599 is a problem.
-			if(response.StatusCode < 400 && response.StatusCode > 599)
+			if(!Util.IsProblemStatusCode(response.StatusCode))
 			{
 				return false;
 			}

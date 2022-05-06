@@ -37,7 +37,7 @@
 
 				// Create new client error mappings.
 				options.ClientErrorMapping.Clear();
-				for(int statusCode = 100; statusCode < 600; statusCode++)
+				for(int statusCode = 400; statusCode < 600; statusCode++)
 				{
 					string reasonPhrase = ReasonPhrases.GetReasonPhrase(statusCode);
 					if(!string.IsNullOrWhiteSpace(reasonPhrase))
