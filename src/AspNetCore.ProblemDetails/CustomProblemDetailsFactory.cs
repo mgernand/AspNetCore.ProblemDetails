@@ -63,6 +63,8 @@
 				return problemDetails;
 			}
 
+			return this.CreateProblemDetails(httpContext, httpContext.Response.StatusCode);
+
 			// The developer explicitly ignored the problem.
 			return null;
 		}

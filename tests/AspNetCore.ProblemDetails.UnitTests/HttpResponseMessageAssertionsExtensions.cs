@@ -11,7 +11,7 @@ namespace AspNetCore.ProblemDetails.UnitTests
 
 	internal static class HttpResponseMessageAssertionsExtensions
 	{
-		public static void BeProblemDetails(this HttpResponseMessageAssertions should, bool expectExceptionDetails)
+		public static ProblemDetails BeProblemDetails(this HttpResponseMessageAssertions should, bool expectExceptionDetails)
 		{
 			HttpResponseMessage httpResponseMessage = should.Subject;
 
@@ -33,9 +33,14 @@ namespace AspNetCore.ProblemDetails.UnitTests
 
 			if(expectExceptionDetails)
 			{
-				problemDetails?.Extensions.Should().ContainKey("exception",
-					"Expected the problem details to contain the exception details.");
+				problemDetails?.Extensions.Should().ContainKey("exception");
 			}
+			else
+			{
+				problemDetails?.Extensions.Should().NotContainKey("exception");
+			}
+
+			return problemDetails;
 		}
 	}
 }

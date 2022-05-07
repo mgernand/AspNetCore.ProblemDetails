@@ -2,6 +2,7 @@ namespace AspNetCore.ProblemDetails.UnitTests
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Linq;
 	using System.Net;
 	using System.Net.Http;
 	using System.Threading.Tasks;
@@ -9,11 +10,16 @@ namespace AspNetCore.ProblemDetails.UnitTests
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Hosting;
 	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
 	using Microsoft.AspNetCore.TestHost;
 	using Microsoft.Extensions.DependencyInjection;
 	using Microsoft.Extensions.Hosting;
 	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Logging.Mock;
+	using Microsoft.Net.Http.Headers;
+	using Moq;
 	using NUnit.Framework;
+	using NameValueHeaderValue = System.Net.Http.Headers.NameValueHeaderValue;
 
 	[TestFixture]
 	public class Tests
@@ -35,13 +41,18 @@ namespace AspNetCore.ProblemDetails.UnitTests
 			}
 		}
 
-		private static HttpClient CreateHttpClient(RequestDelegate handler = null, Action<ProblemDetailsOptions> configureAction = null)
+		public Mock<ILogger> MockLogger { get; set; }
+
+		public HttpClient CreateHttpClient(RequestDelegate handler = null, Action<ProblemDetailsOptions> configureAction = null, string environment = null)
 		{
+			this.MockLogger = new Mock<ILogger>();
+
 			IWebHostBuilder builder = new WebHostBuilder()
-				.UseEnvironment(Environments.Development)
+				.UseEnvironment(environment ?? Environments.Development)
 				.ConfigureLogging(logging =>
 				{
 					logging.AddConsole();
+					logging.AddMock(this.MockLogger);
 				})
 				.ConfigureServices(services =>
 				{
@@ -97,10 +108,126 @@ namespace AspNetCore.ProblemDetails.UnitTests
 			yield return new object[] { new NullReferenceException(), HttpStatusCode.InternalServerError };
 		}
 
+		private static Exception GetInnermostException(Exception exception)
+		{
+			while(exception.InnerException != null)
+			{
+				exception = exception.InnerException;
+			}
+
+			return exception;
+		}
+
+		[Test]
+		public async Task ShouldControllerHandleCustomProblemModel()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient())
+			{
+				HttpResponseMessage response = await httpClient.GetAsync("/api/problem-model");
+
+				response.Should().HaveStatusCode(HttpStatusCode.TooManyRequests);
+				response.Should().BeProblemDetails(false);
+			}
+		}
+
+		[Test]
+		public async Task ShouldControllerHandleErrorModel()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient())
+			{
+				HttpResponseMessage response = await httpClient.GetAsync("/api/error-model");
+
+				response.Should().HaveStatusCode(HttpStatusCode.BadRequest);
+				response.Should().BeProblemDetails(true);
+			}
+		}
+
+		[Test]
+		[TestCase(HttpStatusCode.BadRequest)]
+		[TestCase(HttpStatusCode.Unauthorized)]
+		[TestCase(HttpStatusCode.NotImplemented)]
+		[TestCase(HttpStatusCode.ServiceUnavailable)]
+		[TestCase(HttpStatusCode.InternalServerError)]
+		public async Task ShouldControllerHandleErrorStatusCode(HttpStatusCode httpStatusCode)
+		{
+			using(HttpClient httpClient = this.CreateHttpClient())
+			{
+				HttpResponseMessage response = await httpClient.GetAsync($"/api/statusCode/{httpStatusCode:D}");
+
+				response.Should().HaveStatusCode(httpStatusCode);
+				response.Should().BeProblemDetails(false);
+			}
+		}
+
+		[Test]
+		public async Task ShouldControllerHandleException()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient())
+			{
+				HttpResponseMessage response = await httpClient.GetAsync("/api/error");
+
+				response.Should().HaveStatusCode(HttpStatusCode.InternalServerError);
+				response.Should().BeProblemDetails(true);
+			}
+		}
+
+		[Test]
+		public async Task ShouldControllerHandleInvalidModelState()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient())
+			{
+				HttpResponseMessage response = await httpClient.GetAsync("/api/statusCode");
+
+				response.Should().HaveStatusCode(HttpStatusCode.BadRequest);
+				response.Should().BeProblemDetails(false);
+			}
+		}
+
+		[Test]
+		public async Task ShouldControllerHandleModelState()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient())
+			{
+				HttpResponseMessage response = await httpClient.GetAsync("/api/validation");
+
+				response.Should().HaveStatusCode(HttpStatusCode.BadRequest);
+				response.Should().BeProblemDetails(false);
+			}
+		}
+
+		[Test]
+		public async Task ShouldControllerStringDetail()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient())
+			{
+				HttpResponseMessage response = await httpClient.GetAsync("/api/string-detail");
+
+				response.Should().HaveStatusCode(HttpStatusCode.UnprocessableEntity);
+				response.Should().BeProblemDetails(false);
+			}
+		}
+
+		[Test]
+		[TestCase(HttpStatusCode.BadRequest)]
+		[TestCase(HttpStatusCode.NotFound)]
+		[TestCase(HttpStatusCode.Unauthorized)]
+		[TestCase(HttpStatusCode.UnprocessableEntity)]
+		public async Task ShouldHandleClientErrorStatusCodes(HttpStatusCode httpStatusCode)
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseWithStatusCode(httpStatusCode)))
+			{
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				response.Should().HaveStatusCode(httpStatusCode);
+				response.Should().BeProblemDetails(false);
+			}
+		}
+
+
 		[Test]
 		public async Task ShouldHandleException()
 		{
-			using(HttpClient httpClient = CreateHttpClient(ResponseThrowsException()))
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseThrowsException()))
 			{
 				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
 
@@ -110,10 +237,58 @@ namespace AspNetCore.ProblemDetails.UnitTests
 		}
 
 		[Test]
+		public async Task ShouldHandleExceptionWhenRethrowPredicatePrevents()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(new ArgumentException("property")),
+					  options =>
+					  {
+						  options.Rethrow<ArithmeticException>();
+						  options.Rethrow<ArgumentException>((context, ex) => ex.Message != "property");
+					  }))
+			{
+				await httpClient.GetAsync(string.Empty);
+			}
+		}
+
+		[Test]
+		[TestCase("includeException")]
+		[TestCase("excludeException")]
+		public async Task ShouldHandleMappingPredicate(string predicateValue)
+		{
+			const string paramName = "includeException";
+
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(new ArgumentException(string.Empty, paramName)),
+					  options =>
+					  {
+						  options.Map<ArgumentException>(
+							  (context, exception) => exception.ParamName == predicateValue,
+							  (context, exception) => HttpStatusCode.UnprocessableEntity);
+
+						  options.MapStatusCode<Exception>(HttpStatusCode.InternalServerError);
+					  }))
+			{
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				if(predicateValue == paramName)
+				{
+					response.Should().HaveStatusCode(HttpStatusCode.UnprocessableEntity);
+					response.Should().BeProblemDetails(true);
+				}
+				else
+				{
+					response.Should().HaveStatusCode(HttpStatusCode.InternalServerError);
+					response.Should().BeProblemDetails(true);
+				}
+			}
+		}
+
+		[Test]
 		[TestCaseSource(nameof(StatusCodeTestCases))]
 		public async Task ShouldHandleProblemStatusCode(HttpStatusCode statusCode, bool isProblem)
 		{
-			using(HttpClient httpClient = CreateHttpClient(ResponseWithStatusCode(statusCode)))
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseWithStatusCode(statusCode)))
 			{
 				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
 
@@ -127,15 +302,31 @@ namespace AspNetCore.ProblemDetails.UnitTests
 		}
 
 		[Test]
+		[TestCase(HttpStatusCode.InternalServerError)]
+		[TestCase(HttpStatusCode.ServiceUnavailable)]
+		[TestCase(HttpStatusCode.NotImplemented)]
+		public async Task ShouldHandleServerErrorStatusCodes(HttpStatusCode httpStatusCode)
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseWithStatusCode(httpStatusCode)))
+			{
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				response.Should().HaveStatusCode(httpStatusCode);
+				response.Should().BeProblemDetails(false);
+			}
+		}
+
+		[Test]
 		[TestCaseSource(nameof(ExceptionTestCases))]
 		public async Task ShouldHandleStatusCodes(Exception exception, HttpStatusCode expectedStatusCode)
 		{
-			using(HttpClient httpClient = CreateHttpClient(ResponseThrowsException(exception),
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(exception),
 					  options =>
 					  {
-						  options.StatusCode<NotImplementedException>(HttpStatusCode.NotImplemented);
-						  options.StatusCode<InvalidOperationException>(HttpStatusCode.UnprocessableEntity);
-						  options.StatusCode<Exception>(HttpStatusCode.InternalServerError);
+						  options.MapStatusCode<NotImplementedException>(HttpStatusCode.NotImplemented);
+						  options.MapStatusCode<InvalidOperationException>(HttpStatusCode.UnprocessableEntity);
+						  options.MapStatusCode<Exception>(HttpStatusCode.InternalServerError);
 					  }))
 			{
 				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
@@ -148,14 +339,252 @@ namespace AspNetCore.ProblemDetails.UnitTests
 		[Test]
 		public async Task ShouldIgnoreException()
 		{
-			using(HttpClient httpClient = CreateHttpClient(ResponseThrowsException(new NotImplementedException()),
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(new NotImplementedException()),
 					  options =>
 					  {
 						  options.Ignore<NotImplementedException>();
 					  }))
 			{
-				Func<Task> func = async () => await httpClient.GetAsync(string.Empty);
-				await func.Should().ThrowAsync<NotImplementedException>();
+				Exception exception = Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync(string.Empty));
+				Exception innermostException = GetInnermostException(exception);
+				innermostException.Should().BeOfType<NotImplementedException>();
+			}
+		}
+
+		[Test]
+		[TestCase("Development", true)]
+		[TestCase("Staging", false)]
+		[TestCase("Production", false)]
+		public async Task ShouldIncludeExceptionDetailsForEnvironment(string environment, bool expectExceptionDetails)
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseThrowsException(), environment: environment))
+			{
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				ProblemDetails problemDetails = response.Should().BeProblemDetails(expectExceptionDetails);
+				problemDetails.Extensions.ContainsKey("exception").Should().Be(expectExceptionDetails);
+			}
+		}
+
+		[Test]
+		public async Task ShouldLogMappedServerException()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(new NotImplementedException()),
+					  options =>
+					  {
+						  options.MapStatusCode<NotImplementedException>(HttpStatusCode.NotImplemented);
+					  }))
+			{
+				await httpClient.GetAsync(string.Empty);
+				this.MockLogger.VerifyLog().ErrorWasCalled();
+			}
+		}
+
+		[Test]
+		public async Task ShouldLogUnhandledException()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseThrowsException()))
+			{
+				await httpClient.GetAsync(string.Empty);
+				this.MockLogger.VerifyLog().ErrorWasCalled();
+			}
+		}
+
+		[Test]
+		public async Task ShouldNotCacheProblemDetailsResponse()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseThrowsException()))
+			{
+				HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Options, "/");
+				request.Headers.Add(HeaderNames.Origin, "localhost");
+
+				HttpResponseMessage response = await httpClient.SendAsync(request);
+
+				response.Headers
+					.Any(x => x.Key.StartsWith("Access-Control-Allow-"))
+					.Should().BeTrue();
+			}
+		}
+
+		[Test]
+		public async Task ShouldNotHandleExceptionAfterStartedResponse()
+		{
+			static Task WriteResponse(HttpContext context)
+			{
+				context.Response.WriteAsync("problems");
+				throw new InvalidOperationException("Request Failed");
+			}
+
+			using(HttpClient httpClient = this.CreateHttpClient(WriteResponse))
+			{
+				Exception exception = Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync(string.Empty));
+				Exception innermostException = GetInnermostException(exception);
+				innermostException.Should().BeOfType<InvalidOperationException>();
+			}
+		}
+
+		[Test]
+		public async Task ShouldNotHandleStartedResponse()
+		{
+			static Task WriteResponse(HttpContext context)
+			{
+				context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+				return context.Response.WriteAsync("problems");
+			}
+
+			using(HttpClient httpClient = this.CreateHttpClient(WriteResponse))
+			{
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				response.Content.Headers.ContentLength.Should().Be(8);
+				response.Should().HaveStatusCode(HttpStatusCode.InternalServerError);
+			}
+		}
+
+		[Test]
+		[TestCase(HttpStatusCode.OK)]
+		[TestCase(HttpStatusCode.Created)]
+		[TestCase(HttpStatusCode.NoContent)]
+		[TestCase((HttpStatusCode)100)]
+		[TestCase((HttpStatusCode)300)]
+		[TestCase((HttpStatusCode)600)]
+		[TestCase((HttpStatusCode)900)]
+		public async Task ShouldNotHandleSuccessStatusCodes(HttpStatusCode httpStatusCode)
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseWithStatusCode(httpStatusCode)))
+			{
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				response.Should().HaveStatusCode(httpStatusCode);
+				response.Content.Headers.ContentLength.Should().Be(0);
+			}
+		}
+
+		[Test]
+		public async Task ShouldNotLogMappedClientException()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(new NotImplementedException()),
+					  options =>
+					  {
+						  options.MapStatusCode<NotImplementedException>(HttpStatusCode.Forbidden);
+					  }))
+			{
+				await httpClient.GetAsync(string.Empty);
+				this.MockLogger.VerifyLog().ErrorWasNotCalled();
+			}
+		}
+
+		[Test]
+		public async Task ShouldPreserveCorsHeader()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseThrowsException()))
+			{
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				response.Headers.CacheControl.NoCache.Should().BeTrue();
+				response.Headers.CacheControl.NoStore.Should().BeTrue();
+				response.Headers.CacheControl.MustRevalidate.Should().BeTrue();
+				response.Headers.Pragma.Should().Contain(new NameValueHeaderValue("no-cache"));
+			}
+		}
+
+		[Test]
+		public async Task ShouldPreserveStatusCodeWhenExcludingExceptionDetails()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(ResponseThrowsException(), environment: "Production"))
+			{
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				response.Should().HaveStatusCode(HttpStatusCode.InternalServerError);
+			}
+		}
+
+		[Test]
+		public async Task ShouldRethrowForDerivedExceptionWhenRethrowIsConfigured()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(new DivideByZeroException()),
+					  options =>
+					  {
+						  options.Rethrow<ArithmeticException>();
+					  }))
+			{
+				Exception exception = Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync(string.Empty));
+				Exception innermostException = GetInnermostException(exception);
+				innermostException.Should().BeOfType<DivideByZeroException>();
+			}
+		}
+
+		[Test]
+		public async Task ShouldRethrowWhenExceptionMappedToNull()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(new ArithmeticException()),
+					  options =>
+					  {
+						  options.Map<ArithmeticException>(exception => null);
+					  }))
+			{
+				Exception exception = Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync(string.Empty));
+				Exception innermostException = GetInnermostException(exception);
+				innermostException.Should().BeOfType<ArithmeticException>();
+			}
+		}
+
+		[Test]
+		public async Task ShouldRethrowWhenRethrowIsConfigured()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(new ArithmeticException()),
+					  options =>
+					  {
+						  options.Rethrow<ArithmeticException>();
+					  }))
+			{
+				Exception exception = Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync(string.Empty));
+				Exception innermostException = GetInnermostException(exception);
+				innermostException.Should().BeOfType<ArithmeticException>();
+			}
+		}
+
+		[Test]
+		public async Task ShouldRethrowWhenRethrowPredicateReturnsTrue()
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(new ArithmeticException()),
+					  options =>
+					  {
+						  options.Rethrow<ArithmeticException>((_, _) => true);
+					  }))
+			{
+				Exception exception = Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync(string.Empty));
+				Exception innermostException = GetInnermostException(exception);
+				innermostException.Should().BeOfType<ArithmeticException>();
+			}
+		}
+
+
+		[Test]
+		[TestCase("application/csv", "application/problem+json")]
+		[TestCase("application/json", "application/problem+json")]
+		public async Task ShouldSendProblemDetailsContentTypes(string acceptContentType, string responseContentType)
+		{
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(),
+					  options =>
+					  {
+						  options.MapStatusCode<Exception>(HttpStatusCode.InternalServerError);
+					  }))
+			{
+				httpClient.DefaultRequestHeaders.Accept.Clear();
+				httpClient.DefaultRequestHeaders.Accept.ParseAdd(acceptContentType);
+
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				response.Content.Headers.ContentType.MediaType.Should().Be(responseContentType);
 			}
 		}
 	}

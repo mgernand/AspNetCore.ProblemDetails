@@ -48,7 +48,7 @@
 		/// </summary>
 		/// <typeparam name="TException"></typeparam>
 		/// <param name="httpStatusCode"></param>
-		public void StatusCode<TException>(HttpStatusCode httpStatusCode) where TException : Exception
+		public void MapStatusCode<TException>(HttpStatusCode httpStatusCode) where TException : Exception
 		{
 			this.Map<TException>((_, _) => httpStatusCode);
 		}
@@ -60,7 +60,7 @@
 		/// <typeparam name="TException"></typeparam>
 		public void Ignore<TException>() where TException : Exception
 		{
-			this.Map<TException>((_, _) => false, (_, _) => null);
+			this.Rethrow<TException>();
 		}
 
 		/// <summary>
@@ -82,23 +82,29 @@
 			this.Rethrow((_, _) => true);
 		}
 
-		private void Rethrow<TException>(Func<HttpContext, TException, bool> predicate) where TException : Exception
+		public void Rethrow<TException>(Func<HttpContext, TException, bool> predicate) where TException : Exception
 		{
 			this.Rethrow((context, exception) => exception is TException ex && predicate(context, ex));
 		}
 
-		private void Rethrow(Func<HttpContext, Exception, bool> predicate)
+		public void Rethrow(Func<HttpContext, Exception, bool> predicate)
 		{
 			this.RethrowMappings.Add(predicate);
 		}
 
-		private void Map<TException>(Func<HttpContext, TException, HttpStatusCode?> mapping)
+		public void Map<TException>(Func<TException, HttpStatusCode?> mapping)
+			where TException : Exception
+		{
+			this.Map<TException>((_, exception) => mapping.Invoke(exception));
+		}
+
+		public void Map<TException>(Func<HttpContext, TException, HttpStatusCode?> mapping)
 			where TException : Exception
 		{
 			this.Map((_, _) => true, mapping);
 		}
 
-		private void Map<TException>(
+		public void Map<TException>(
 			Func<HttpContext, TException, bool> predicate,
 			Func<HttpContext, TException, HttpStatusCode?> mapping)
 			where TException : Exception

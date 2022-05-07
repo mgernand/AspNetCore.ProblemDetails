@@ -25,13 +25,13 @@ namespace AspNetCore.ProblemDetails.Demo
 					options.IncludeExceptionDetails = (context, exception) => builder.Environment.IsDevelopment();
 
 					// Use the status code 501 for this type of exception.
-					options.StatusCode<NotImplementedException>(HttpStatusCode.NotImplemented);
+					options.MapStatusCode<NotImplementedException>(HttpStatusCode.NotImplemented);
 
 					// Use the status code 501 for this type of exception.
-					options.StatusCode<InvalidOperationException>(HttpStatusCode.InternalServerError);
+					options.MapStatusCode<InvalidOperationException>(HttpStatusCode.InternalServerError);
 
 					// Add a fallback for all other exceptions with the status code 500.
-					options.StatusCode<Exception>(HttpStatusCode.InternalServerError);
+					options.MapStatusCode<Exception>(HttpStatusCode.InternalServerError);
 				});
 
 			WebApplication app = builder.Build();
