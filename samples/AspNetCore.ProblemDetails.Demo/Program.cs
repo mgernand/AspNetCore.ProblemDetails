@@ -43,6 +43,7 @@ namespace AspNetCore.ProblemDetails.Demo
 				app.UseSwaggerUI();
 			}
 
+			app.UseCors();
 			app.UseProblemDetails();
 			app.UseHttpsRedirection();
 			app.UseAuthorization();
