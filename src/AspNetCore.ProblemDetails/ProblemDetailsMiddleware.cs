@@ -180,7 +180,7 @@
 			RouteData routeData = httpContext.GetRouteData();
 			ActionContext actionContext = new ActionContext(httpContext, routeData, new ActionDescriptor());
 
-			ObjectResult result = Util.CreateResult(problemDetails);
+			ObjectResult result = problemDetails.CreateResult();
 
 			await this.actionResultExecutor.ExecuteAsync(actionContext, result);
 

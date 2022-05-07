@@ -3,6 +3,7 @@
 	using System;
 	using System.Collections.Generic;
 	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc.Formatters;
 
 	internal static class ProblemDetailsExtensions
 	{
@@ -11,6 +12,21 @@
 			problemDetails.Detail ??= exception.Message;
 			problemDetails.Instance ??= GetHelpLink(exception);
 			problemDetails.Extensions.TryAdd("exception", GetExceptionDetails(exception));
+		}
+
+		public static ObjectResult CreateResult(this ProblemDetails problemDetails)
+		{
+			ObjectResult result = new ObjectResult(problemDetails)
+			{
+				StatusCode = problemDetails.Status,
+				ContentTypes = new MediaTypeCollection
+				{
+					"application/problem+json",
+					"application/problem+xml"
+				}
+			};
+
+			return result;
 		}
 
 		private static ExceptionDetails GetExceptionDetails(Exception exception)

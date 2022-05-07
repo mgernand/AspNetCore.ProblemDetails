@@ -9,7 +9,7 @@
 		{
 			Guard.Against.Null(response);
 
-			if(!Util.IsProblemStatusCode(response.StatusCode))
+			if(!response.StatusCode.IsProblemStatusCode())
 			{
 				return false;
 			}

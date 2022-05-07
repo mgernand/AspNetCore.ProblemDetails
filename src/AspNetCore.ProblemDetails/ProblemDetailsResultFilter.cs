@@ -39,12 +39,12 @@
 			if(result.Value is SerializableError error)
 			{
 				ProblemDetails problemDetails = this.problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, error, result.StatusCode);
-				context.Result = Util.CreateResult(problemDetails);
+				context.Result = problemDetails.CreateResult();
 				return;
 			}
 
 			// Make sure the result should be treated as a problem.
-			if(!Util.IsProblemStatusCode(result.StatusCode))
+			if(!result.StatusCode.IsProblemStatusCode())
 			{
 				return;
 			}
@@ -53,7 +53,7 @@
 			if(result.Value is string detail)
 			{
 				ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, result.StatusCode, detail: detail);
-				context.Result = Util.CreateResult(problemDetails);
+				context.Result = problemDetails.CreateResult();
 				return;
 			}
 
@@ -71,7 +71,7 @@
 					return;
 				}
 
-				context.Result = Util.CreateResult(problemDetails);
+				context.Result = problemDetails.CreateResult();
 			}
 		}
 
