@@ -92,12 +92,6 @@
 			this.RethrowMappings.Add(predicate);
 		}
 
-		public void Map<TException>(Func<TException, HttpStatusCode?> mapping)
-			where TException : Exception
-		{
-			this.Map<TException>((_, exception) => mapping.Invoke(exception));
-		}
-
 		public void Map<TException>(Func<HttpContext, TException, HttpStatusCode?> mapping)
 			where TException : Exception
 		{

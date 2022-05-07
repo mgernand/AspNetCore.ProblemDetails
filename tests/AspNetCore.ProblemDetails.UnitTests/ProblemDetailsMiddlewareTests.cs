@@ -519,24 +519,6 @@ namespace AspNetCore.ProblemDetails.UnitTests
 		}
 
 		[Test]
-		public async Task ShouldRethrowWhenExceptionMappedToNull()
-		{
-			using(HttpClient httpClient = this.CreateHttpClient(
-					  ResponseThrowsException(new ArithmeticException()),
-					  options =>
-					  {
-						  options.Map<ArithmeticException>(exception => null);
-					  }))
-			{
-				await httpClient.GetAsync(string.Empty);
-
-				//Exception exception = Assert.ThrowsAsync<HttpRequestException>(async () => await httpClient.GetAsync(string.Empty));
-				//Exception innermostException = GetInnermostException(exception);
-				//innermostException.Should().BeOfType<ArithmeticException>();
-			}
-		}
-
-		[Test]
 		public async Task ShouldRethrowWhenRethrowIsConfigured()
 		{
 			using(HttpClient httpClient = this.CreateHttpClient(
