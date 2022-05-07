@@ -1,2 +1,8 @@
 # AspNetCore.ProblemDetails
-A middleware to close some gaps in the RFC 7807 problem details implementation when using API controllers.
+
+A middleware to create RFC 7807 problem details for APIs.
+
+
+## Usage
+
+To conf
