@@ -129,7 +129,7 @@
 			{
 				if(statusCodeMapper.TryMapStatusCode(httpContext, exception, out httpStatusCode))
 				{
-					return true;
+					return httpStatusCode.HasValue;
 				}
 			}
 

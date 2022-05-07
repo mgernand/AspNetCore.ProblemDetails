@@ -64,9 +64,6 @@
 			}
 
 			return this.CreateProblemDetails(httpContext, httpContext.Response.StatusCode);
-
-			// The developer explicitly ignored the problem.
-			return null;
 		}
 
 		public ValidationProblemDetails CreateValidationProblemDetails(HttpContext httpContext, SerializableError error, int? statusCode)
