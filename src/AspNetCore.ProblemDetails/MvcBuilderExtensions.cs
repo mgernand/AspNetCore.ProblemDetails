@@ -8,7 +8,6 @@
 	using Microsoft.AspNetCore.Mvc.Infrastructure;
 	using Microsoft.AspNetCore.WebUtilities;
 	using Microsoft.Extensions.DependencyInjection;
-	using Microsoft.Extensions.Options;
 
 	/// <summary>
 	///     Extensions methods for the <see cref="IMvcBuilder" /> type.
@@ -29,6 +28,9 @@
 				builder.Services.Configure(configureAction);
 			}
 
+			ProblemDetailsOptions problemDetailsOptions = new ProblemDetailsOptions();
+			configureAction?.Invoke(problemDetailsOptions);
+
 			// Create the complete list of status code mappings.
 			builder.ConfigureApiBehaviorOptions(options =>
 			{
@@ -45,14 +47,11 @@
 						options.ClientErrorMapping[statusCode] = new ClientErrorData
 						{
 							Title = reasonPhrase,
-							Link = $"https://httpstatuses.io/{statusCode}"
+							Link = problemDetailsOptions.CreateProblemLinkUri(statusCode).AbsoluteUri
 						};
 					}
 				}
 			});
-
-			// Add the default options configurator.
-			builder.Services.AddTransient<IConfigureOptions<ProblemDetailsOptions>, ConfigureProblemDetailsOptions>();
 
 			// Decorate the default problem detail factory.
 			builder.Services

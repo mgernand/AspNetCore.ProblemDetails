@@ -7,6 +7,8 @@
 	using JetBrains.Annotations;
 	using Microsoft.AspNetCore.Http;
 	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.Extensions.DependencyInjection;
+	using Microsoft.Extensions.Hosting;
 
 	/// <summary>
 	///     The options for the problem details middleware.
@@ -21,6 +23,10 @@
 		{
 			this.StatusCodeMappings = new List<StatusCodeMapper>();
 			this.RethrowMappings = new List<Func<HttpContext, Exception, bool>>();
+
+			this.IncludeExceptionDetails ??= (context, exception) => context.RequestServices.GetRequiredService<IHostEnvironment>().IsDevelopment();
+			this.LogUnhandledException ??= (context, exception, problemDetails) => problemDetails.Status is not < 500;
+			this.CreateProblemLinkUri ??= statusCode => new Uri($"https://httpstatuscodes.io/{statusCode}");
 		}
 
 		/// <summary>
@@ -36,6 +42,12 @@
 		///     or the  value is <c>500</c> or higher.
 		/// </summary>
 		public Func<HttpContext, Exception, ProblemDetails, bool> LogUnhandledException { get; set; }
+
+		/// <summary>
+		///     Gets or sets a function that returns a uri for the given status code.
+		///     The default returns a special link for every code: <c>"https://httpstatuscodes.io/{statusCode}</c>
+		/// </summary>
+		public Func<int, Uri> CreateProblemLinkUri { get; set; }
 
 		internal IList<StatusCodeMapper> StatusCodeMappings { get; }
 
