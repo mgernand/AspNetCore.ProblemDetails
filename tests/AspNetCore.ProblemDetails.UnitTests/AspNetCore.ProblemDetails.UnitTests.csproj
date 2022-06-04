@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Extensions.Logging.Mock" Version="1.1.1" />
     <PackageReference Include="FluentAssertions" Version="6.7.0" />
     <PackageReference Include="Fluxera.Utilities" Version="6.0.16" />
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="6.0.5" />

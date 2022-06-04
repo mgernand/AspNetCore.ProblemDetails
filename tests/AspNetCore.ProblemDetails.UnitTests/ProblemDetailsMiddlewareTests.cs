@@ -30,7 +30,7 @@ namespace AspNetCore.ProblemDetails.UnitTests
 			foreach(HttpStatusCode httpStatusCode in statusCodes)
 			{
 				int code = (int)httpStatusCode;
-				if(code >= 400 && code < 599)
+				if(code is >= 400 and < 599)
 				{
 					yield return new object[] { httpStatusCode, true };
 				}
