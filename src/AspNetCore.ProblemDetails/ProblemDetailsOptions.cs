@@ -62,7 +62,7 @@
 		/// <param name="httpStatusCode"></param>
 		public void MapStatusCode<TException>(HttpStatusCode httpStatusCode) where TException : Exception
 		{
-			this.Map<TException>((_, _) => httpStatusCode);
+			this.Map<TException>((_, _) => true, (_, _) => httpStatusCode);
 		}
 
 		/// <summary>
@@ -91,25 +91,25 @@
 		{
 			// Just add one mapping that always returns true.
 			this.RethrowMappings.Clear();
-			this.Rethrow((_, _) => true);
+			this.RethrowMappings.Add((_, _) => true);
 		}
 
+		/// <summary>
+		///     Configures the middleware to re-throw the specified exception if the predicate is satisfied.
+		/// </summary>
+		/// <typeparam name="TException"></typeparam>
+		/// <param name="predicate"></param>
 		public void Rethrow<TException>(Func<HttpContext, TException, bool> predicate) where TException : Exception
 		{
-			this.Rethrow((context, exception) => exception is TException ex && predicate(context, ex));
+			this.RethrowMappings.Add((context, exception) => exception is TException ex && predicate(context, ex));
 		}
 
-		public void Rethrow(Func<HttpContext, Exception, bool> predicate)
-		{
-			this.RethrowMappings.Add(predicate);
-		}
-
-		public void Map<TException>(Func<HttpContext, TException, HttpStatusCode?> mapping)
-			where TException : Exception
-		{
-			this.Map((_, _) => true, mapping);
-		}
-
+		/// <summary>
+		///     Maps the exception to the status code if the predicate is satisfied.
+		/// </summary>
+		/// <typeparam name="TException"></typeparam>
+		/// <param name="predicate"></param>
+		/// <param name="mapping"></param>
 		public void Map<TException>(
 			Func<HttpContext, TException, bool> predicate,
 			Func<HttpContext, TException, HttpStatusCode?> mapping)

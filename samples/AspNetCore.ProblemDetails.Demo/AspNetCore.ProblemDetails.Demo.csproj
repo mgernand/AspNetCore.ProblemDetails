@@ -8,7 +8,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="FluentValidation" Version="11.0.1" />
+	  <PackageReference Include="Fluxera.Extensions.Validation" Version="6.0.33" />
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
 	</ItemGroup>
 

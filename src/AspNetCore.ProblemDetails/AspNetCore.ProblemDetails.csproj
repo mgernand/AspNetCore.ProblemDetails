@@ -48,8 +48,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Extensions.Logging.Mock" Version="1.1.0" />
-		<PackageReference Include="Fluxera.Extensions.DependencyInjection" Version="6.0.29" />
+		<PackageReference Include="Extensions.Logging.Mock" Version="1.1.1" />
+		<PackageReference Include="Fluxera.Extensions.DependencyInjection" Version="6.0.33" />
 		<PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
 		<PackageReference Include="Fluxera.Guards" Version="6.0.22" />
 	</ItemGroup>
