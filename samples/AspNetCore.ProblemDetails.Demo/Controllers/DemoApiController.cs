@@ -1,6 +1,8 @@
 ﻿namespace AspNetCore.ProblemDetails.Demo.Controllers
 {
 	using System;
+	using System.Collections.Generic;
+	using Fluxera.Extensions.Validation;
 	using Microsoft.AspNetCore.Mvc;
 
 	[ApiController]
@@ -58,6 +60,26 @@
 		public IActionResult ValidationPlain()
 		{
 			return this.BadRequest("There was an error.");
+		}
+
+		[HttpGet("validation/exception")]
+		public IActionResult ValidationException()
+		{
+			ICollection<ValidationError> errors = new List<ValidationError>
+			{
+				new ValidationError("property")
+				{
+					ErrorMessages =
+					{
+						"This property's validation failed. - 1",
+						"This property's validation failed. - 2",
+						"This property's validation failed. - 3",
+						"This property's validation failed. - 4"
+					}
+				}
+			};
+
+			throw new ValidationException(errors);
 		}
 	}
 }

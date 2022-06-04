@@ -7,6 +7,7 @@
 	using JetBrains.Annotations;
 	using Microsoft.AspNetCore.Http;
 	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc.Infrastructure;
 	using Microsoft.Extensions.DependencyInjection;
 	using Microsoft.Extensions.Hosting;
 
@@ -66,6 +67,22 @@
 		}
 
 		/// <summary>
+		///     Configures the middleware to use the given HTTP status code and the problem
+		///     details instance created by the factory function for the response for any occurring
+		///     instance of the given exception.
+		/// </summary>
+		/// <typeparam name="TException"></typeparam>
+		/// <param name="httpStatusCode"></param>
+		/// <param name="problemDetailsMapping"></param>
+		public void MapStatusCode<TException>(
+			HttpStatusCode httpStatusCode,
+			Func<HttpContext, TException, HttpStatusCode, ProblemDetailsFactory, ProblemDetails> problemDetailsMapping)
+			where TException : Exception
+		{
+			this.Map((_, _) => true, (_, _) => httpStatusCode, problemDetailsMapping);
+		}
+
+		/// <summary>
 		///     Configures the middleware to ignore any occurring instance of the given exception.
 		///     This causes the middleware to re-throw the exception.
 		/// </summary>
@@ -99,7 +116,8 @@
 		/// </summary>
 		/// <typeparam name="TException"></typeparam>
 		/// <param name="predicate"></param>
-		public void Rethrow<TException>(Func<HttpContext, TException, bool> predicate) where TException : Exception
+		public void Rethrow<TException>(Func<HttpContext, TException, bool> predicate)
+			where TException : Exception
 		{
 			this.RethrowMappings.Add((context, exception) => exception is TException ex && predicate(context, ex));
 		}
@@ -109,21 +127,24 @@
 		/// </summary>
 		/// <typeparam name="TException"></typeparam>
 		/// <param name="predicate"></param>
-		/// <param name="mapping"></param>
+		/// <param name="statusCodeMapping"></param>
+		/// <param name="problemDetailsMapping"></param>
 		public void Map<TException>(
 			Func<HttpContext, TException, bool> predicate,
-			Func<HttpContext, TException, HttpStatusCode?> mapping)
+			Func<HttpContext, TException, HttpStatusCode?> statusCodeMapping,
+			Func<HttpContext, TException, HttpStatusCode, ProblemDetailsFactory, ProblemDetails> problemDetailsMapping = null)
 			where TException : Exception
 		{
 			StatusCodeMapper mapper = new StatusCodeMapper(
 				typeof(TException),
 				(context, exception) => predicate.Invoke(context, (TException)exception),
-				(context, exception) => mapping.Invoke(context, (TException)exception));
+				(context, exception) => statusCodeMapping.Invoke(context, (TException)exception),
+				(context, exception, httpStatusCode, problemDetailsFactory) => problemDetailsMapping?.Invoke(context, (TException)exception, httpStatusCode, problemDetailsFactory));
 
 			this.StatusCodeMappings.Add(mapper);
 		}
 
-		internal bool TryMapStatusCode(HttpContext httpContext, Exception exception, out HttpStatusCode? httpStatusCode)
+		internal bool TryMapStatusCode(HttpContext context, Exception exception, out HttpStatusCode? httpStatusCode)
 		{
 			if(exception is null)
 			{
@@ -133,13 +154,33 @@
 
 			foreach(StatusCodeMapper statusCodeMapper in this.StatusCodeMappings)
 			{
-				if(statusCodeMapper.TryMapStatusCode(httpContext, exception, out httpStatusCode))
+				if(statusCodeMapper.TryMapStatusCode(context, exception, out httpStatusCode))
 				{
 					return httpStatusCode.HasValue;
 				}
 			}
 
 			httpStatusCode = default;
+			return false;
+		}
+
+		internal bool TryMapProblemDetails(HttpContext context, Exception exception, HttpStatusCode httpStatusCode, ProblemDetailsFactory problemDetailsFactory, out ProblemDetails problemDetails)
+		{
+			if(exception is null)
+			{
+				problemDetails = null;
+				return false;
+			}
+
+			foreach(StatusCodeMapper statusCodeMapper in this.StatusCodeMappings)
+			{
+				if(statusCodeMapper.TryMapProblemDetails(context, exception, httpStatusCode, problemDetailsFactory, out problemDetails))
+				{
+					return problemDetails is not null;
+				}
+			}
+
+			problemDetails = null;
 			return false;
 		}
 
@@ -159,17 +200,20 @@
 		internal sealed class StatusCodeMapper
 		{
 			private readonly Type exceptionType;
-			private readonly Func<HttpContext, Exception, HttpStatusCode?> mapping;
 			private readonly Func<HttpContext, Exception, bool> predicate;
+			private readonly Func<HttpContext, Exception, HttpStatusCode, ProblemDetailsFactory, ProblemDetails> problemDetailsMapping;
+			private readonly Func<HttpContext, Exception, HttpStatusCode?> statusCodeMapping;
 
 			public StatusCodeMapper(
 				Type exceptionType,
 				Func<HttpContext, Exception, bool> predicate,
-				Func<HttpContext, Exception, HttpStatusCode?> mapping)
+				Func<HttpContext, Exception, HttpStatusCode?> statusCodeMapping,
+				Func<HttpContext, Exception, HttpStatusCode, ProblemDetailsFactory, ProblemDetails> problemDetailsMapping)
 			{
 				this.exceptionType = Guard.Against.Null(exceptionType);
 				this.predicate = Guard.Against.Null(predicate);
-				this.mapping = Guard.Against.Null(mapping);
+				this.statusCodeMapping = Guard.Against.Null(statusCodeMapping);
+				this.problemDetailsMapping = problemDetailsMapping;
 			}
 
 			private bool ShouldMap(HttpContext context, Exception exception)
@@ -177,13 +221,13 @@
 				return this.exceptionType.IsInstanceOfType(exception) && this.predicate.Invoke(context, exception);
 			}
 
-			public bool TryMapStatusCode(HttpContext httpContext, Exception exception, out HttpStatusCode? httpStatusCode)
+			public bool TryMapStatusCode(HttpContext context, Exception exception, out HttpStatusCode? httpStatusCode)
 			{
-				if(this.ShouldMap(httpContext, exception))
+				if(this.ShouldMap(context, exception))
 				{
 					try
 					{
-						httpStatusCode = this.mapping(httpContext, exception);
+						httpStatusCode = this.statusCodeMapping(context, exception);
 						return true;
 					}
 					catch
@@ -194,6 +238,26 @@
 				}
 
 				httpStatusCode = default;
+				return false;
+			}
+
+			public bool TryMapProblemDetails(HttpContext context, Exception exception, HttpStatusCode httpStatusCode, ProblemDetailsFactory problemDetailsFactory, out ProblemDetails problemDetails)
+			{
+				if(this.ShouldMap(context, exception))
+				{
+					try
+					{
+						problemDetails = this.problemDetailsMapping(context, exception, httpStatusCode, problemDetailsFactory);
+						return true;
+					}
+					catch
+					{
+						problemDetails = null;
+						return false;
+					}
+				}
+
+				problemDetails = null;
 				return false;
 			}
 		}
