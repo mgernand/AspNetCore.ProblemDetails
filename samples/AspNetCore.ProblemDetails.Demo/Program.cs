@@ -24,7 +24,7 @@ namespace AspNetCore.ProblemDetails.Demo
 				{
 					// Only include exception details in a development environment.
 					// This is the default behavior and is included just for demo purposes.
-					options.IncludeExceptionDetails = (_, _) => !builder.Environment.IsDevelopment();
+					options.IncludeExceptionDetails = (_, _) => builder.Environment.IsDevelopment();
 
 					// Use the status code 501 for this type of exception.
 					options.MapStatusCode<NotImplementedException>(HttpStatusCode.NotImplemented);
@@ -33,20 +33,21 @@ namespace AspNetCore.ProblemDetails.Demo
 					options.MapStatusCode<InvalidOperationException>(HttpStatusCode.MethodNotAllowed);
 
 					// Use the status code 400 withe the details factory for this type of exception.
-					options.MapStatusCode<ValidationException>(HttpStatusCode.BadRequest, (context, exception, httpStatusCode, problemDetailsFactory) =>
-					{
-						ModelStateDictionary modelState = new ModelStateDictionary();
-
-						foreach(ValidationError validationError in exception.Errors)
+					options.MapStatusCode<ValidationException>(HttpStatusCode.BadRequest,
+						(context, exception, httpStatusCode, problemDetailsFactory) =>
 						{
-							foreach(string errorMessage in validationError.ErrorMessages)
-							{
-								modelState.AddModelError(validationError.PropertyName, errorMessage);
-							}
-						}
+							ModelStateDictionary modelState = new ModelStateDictionary();
 
-						return problemDetailsFactory.CreateValidationProblemDetails(context, modelState, (int)httpStatusCode);
-					});
+							foreach(ValidationError validationError in exception.Errors)
+							{
+								foreach(string errorMessage in validationError.ErrorMessages)
+								{
+									modelState.AddModelError(validationError.PropertyName, errorMessage);
+								}
+							}
+
+							return problemDetailsFactory.CreateValidationProblemDetails(context, modelState, (int)httpStatusCode);
+						});
 
 					// Add a fallback for all other exceptions.
 					options.MapStatusCode<Exception>(HttpStatusCode.InternalServerError);

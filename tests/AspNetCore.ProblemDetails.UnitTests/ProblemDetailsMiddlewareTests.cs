@@ -7,10 +7,12 @@ namespace AspNetCore.ProblemDetails.UnitTests
 	using System.Net.Http;
 	using System.Threading.Tasks;
 	using FluentAssertions;
+	using Fluxera.Extensions.Validation;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Hosting;
 	using Microsoft.AspNetCore.Http;
 	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc.ModelBinding;
 	using Microsoft.AspNetCore.TestHost;
 	using Microsoft.Extensions.DependencyInjection;
 	using Microsoft.Extensions.Hosting;
@@ -337,7 +339,7 @@ namespace AspNetCore.ProblemDetails.UnitTests
 		}
 
 		[Test]
-		public async Task ShouldIgnoreException()
+		public Task ShouldIgnoreException()
 		{
 			using(HttpClient httpClient = this.CreateHttpClient(
 					  ResponseThrowsException(new NotImplementedException()),
@@ -350,6 +352,8 @@ namespace AspNetCore.ProblemDetails.UnitTests
 				Exception innermostException = GetInnermostException(exception);
 				innermostException.Should().BeOfType<NotImplementedException>();
 			}
+
+			return Task.CompletedTask;
 		}
 
 		[Test]
@@ -393,6 +397,54 @@ namespace AspNetCore.ProblemDetails.UnitTests
 		}
 
 		[Test]
+		public async Task ShouldMapCustomProblemDetails()
+		{
+			ICollection<ValidationError> errors = new List<ValidationError>
+			{
+				new ValidationError("property")
+				{
+					ErrorMessages =
+					{
+						"This property's validation failed. - 1",
+						"This property's validation failed. - 2",
+						"This property's validation failed. - 3",
+						"This property's validation failed. - 4"
+					}
+				}
+			};
+
+			ValidationException validationException = new ValidationException(errors);
+
+			using(HttpClient httpClient = this.CreateHttpClient(
+					  ResponseThrowsException(validationException),
+					  options =>
+					  {
+						  options.MapStatusCode<ValidationException>(HttpStatusCode.BadRequest,
+							  (context, exception, httpStatusCode, problemDetailsFactory) =>
+							  {
+								  ModelStateDictionary modelState = new ModelStateDictionary();
+
+								  foreach(ValidationError validationError in exception.Errors)
+								  {
+									  foreach(string errorMessage in validationError.ErrorMessages)
+									  {
+										  modelState.AddModelError(validationError.PropertyName, errorMessage);
+									  }
+								  }
+
+								  return problemDetailsFactory.CreateValidationProblemDetails(context, modelState, (int)httpStatusCode);
+							  });
+					  }))
+			{
+				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
+
+				response.Should().HaveStatusCode(HttpStatusCode.BadRequest);
+				ProblemDetails problemDetails = response.Should().BeProblemDetails(true);
+				problemDetails?.Extensions.Should().ContainKey("errors");
+			}
+		}
+
+		[Test]
 		public async Task ShouldNotCacheProblemDetailsResponse()
 		{
 			using(HttpClient httpClient = this.CreateHttpClient(ResponseThrowsException()))
@@ -409,7 +461,7 @@ namespace AspNetCore.ProblemDetails.UnitTests
 		}
 
 		[Test]
-		public async Task ShouldNotHandleExceptionAfterStartedResponse()
+		public Task ShouldNotHandleExceptionAfterStartedResponse()
 		{
 			static Task WriteResponse(HttpContext context)
 			{
@@ -423,6 +475,8 @@ namespace AspNetCore.ProblemDetails.UnitTests
 				Exception innermostException = GetInnermostException(exception);
 				innermostException.Should().BeOfType<InvalidOperationException>();
 			}
+
+			return Task.CompletedTask;
 		}
 
 		[Test]
@@ -503,7 +557,7 @@ namespace AspNetCore.ProblemDetails.UnitTests
 		}
 
 		[Test]
-		public async Task ShouldRethrowForDerivedExceptionWhenRethrowIsConfigured()
+		public Task ShouldRethrowForDerivedExceptionWhenRethrowIsConfigured()
 		{
 			using(HttpClient httpClient = this.CreateHttpClient(
 					  ResponseThrowsException(new DivideByZeroException()),
@@ -516,10 +570,12 @@ namespace AspNetCore.ProblemDetails.UnitTests
 				Exception innermostException = GetInnermostException(exception);
 				innermostException.Should().BeOfType<DivideByZeroException>();
 			}
+
+			return Task.CompletedTask;
 		}
 
 		[Test]
-		public async Task ShouldRethrowWhenRethrowIsConfigured()
+		public Task ShouldRethrowWhenRethrowIsConfigured()
 		{
 			using(HttpClient httpClient = this.CreateHttpClient(
 					  ResponseThrowsException(new ArithmeticException()),
@@ -532,10 +588,12 @@ namespace AspNetCore.ProblemDetails.UnitTests
 				Exception innermostException = GetInnermostException(exception);
 				innermostException.Should().BeOfType<ArithmeticException>();
 			}
+
+			return Task.CompletedTask;
 		}
 
 		[Test]
-		public async Task ShouldRethrowWhenRethrowPredicateReturnsTrue()
+		public Task ShouldRethrowWhenRethrowPredicateReturnsTrue()
 		{
 			using(HttpClient httpClient = this.CreateHttpClient(
 					  ResponseThrowsException(new ArithmeticException()),
@@ -548,6 +606,8 @@ namespace AspNetCore.ProblemDetails.UnitTests
 				Exception innermostException = GetInnermostException(exception);
 				innermostException.Should().BeOfType<ArithmeticException>();
 			}
+
+			return Task.CompletedTask;
 		}
 
 
