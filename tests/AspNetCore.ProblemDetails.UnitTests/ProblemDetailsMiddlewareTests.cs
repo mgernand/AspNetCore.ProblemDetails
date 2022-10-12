@@ -24,7 +24,7 @@ namespace AspNetCore.ProblemDetails.UnitTests
 	using NameValueHeaderValue = System.Net.Http.Headers.NameValueHeaderValue;
 
 	[TestFixture]
-	public class Tests
+	public class ProblemDetailsMiddlewareTests
 	{
 		public static IEnumerable<object[]> StatusCodeTestCases()
 		{
@@ -60,7 +60,8 @@ namespace AspNetCore.ProblemDetails.UnitTests
 				{
 					services.AddLogging();
 					services.AddCors();
-					services.AddControllers()
+					services
+						.AddControllers()
 						.AddProblemDetails(configureAction)
 						.AddControllersAsServices();
 				})
