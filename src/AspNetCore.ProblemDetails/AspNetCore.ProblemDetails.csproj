@@ -12,17 +12,17 @@
 		<PackageId>MadEyeMatt.$(AssemblyName)</PackageId>
 		<IncludeSymbols>false</IncludeSymbols>
 		<Copyright>Copyright © 2022 Matthias Gernand. All rights reserved.</Copyright>
-		<Version>6.1.1</Version>
-		<AssemblyVersion>6.1.1</AssemblyVersion>
-		<FileVersion>6.1.1</FileVersion>
+		<Version>6.2.0</Version>
+		<AssemblyVersion>6.2.0</AssemblyVersion>
+		<FileVersion>6.2.0</FileVersion>
 		<Authors>Matthias Gernand</Authors>
 		<Description>A middleware to create RFC 7807 problem details for APIs.</Description>
 		<NeutralLanguage>en</NeutralLanguage>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-		<PackageProjectUrl>https://github.com/mgernand/AspNetCore.Authorization.Permissions</PackageProjectUrl>
-		<RepositoryUrl>https://github.com/mgernand/AspNetCore.Authorization.Permissions</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/mgernand/AspNetCore.ProblemDetails</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/mgernand/AspNetCore.ProblemDetails</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageTags>aspnetcore;authorization;permissions</PackageTags>
+		<PackageTags>aspnetcore;problem;details;rfc7807</PackageTags>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageIcon>icon.png</PackageIcon>
@@ -48,9 +48,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Fluxera.Extensions.DependencyInjection" Version="6.1.2" />
+		<PackageReference Include="Fluxera.Extensions.DependencyInjection" Version="6.1.7" />
 		<PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
-		<PackageReference Include="Fluxera.Guards" Version="6.1.0" />
 	</ItemGroup>
 
 </Project>

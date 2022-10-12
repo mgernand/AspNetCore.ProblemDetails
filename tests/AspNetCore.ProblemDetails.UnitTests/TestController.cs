@@ -7,7 +7,7 @@
 
 	[ApiController]
 	[Route("api")]
-	public class Controller : ControllerBase
+	public class TestController : ControllerBase
 	{
 		[HttpGet("statusCode/{statusCode?}")]
 		public ActionResult Status([Required] int? statusCode)
