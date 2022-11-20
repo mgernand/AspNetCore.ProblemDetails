@@ -1,13 +1,13 @@
-﻿namespace AspNetCore.ProblemDetails
-{
-	using System;
-	using System.Net;
-	using Microsoft.AspNetCore.Mvc;
-	using Microsoft.AspNetCore.Mvc.Filters;
-	using Microsoft.AspNetCore.Mvc.Infrastructure;
-	using Microsoft.Extensions.Options;
+﻿using System;
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Extensions.Options;
 
-	internal sealed class ProblemDetailsResultFilter : IAlwaysRunResultFilter, IOrderedFilter
+namespace MadEyeMatt.AspNetCore.ProblemDetails
+{
+    internal sealed class ProblemDetailsResultFilter : IAlwaysRunResultFilter, IOrderedFilter
 	{
 		private readonly ProblemDetailsOptions options;
 		private readonly CustomProblemDetailsFactory problemDetailsFactory;
@@ -29,7 +29,7 @@
 				return;
 			}
 
-			if(result.Value is ProblemDetails)
+			if(result.Value is Microsoft.AspNetCore.Mvc.ProblemDetails)
 			{
 				return;
 			}
@@ -38,7 +38,7 @@
 			// ObjectResult(ModelState) which indicates a validation error.
 			if(result.Value is SerializableError error)
 			{
-				ProblemDetails problemDetails = this.problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, error, result.StatusCode);
+				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, error, result.StatusCode);
 				context.Result = problemDetails.CreateResult();
 				return;
 			}
@@ -52,7 +52,7 @@
 			// If the result is a string, we treat it as the "detail" property.
 			if(result.Value is string detail)
 			{
-				ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, result.StatusCode, detail: detail);
+				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, result.StatusCode, detail: detail);
 				context.Result = problemDetails.CreateResult();
 				return;
 			}
@@ -63,7 +63,7 @@
 				// Set the response status code because it might be used for mapping inside the factory.
 				context.HttpContext.Response.StatusCode = result.StatusCode ?? (int)HttpStatusCode.InternalServerError;
 
-				ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, exception);
+				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, exception);
 
 				// Developers may choose to ignore errors by returning null.
 				if(problemDetails is null)

@@ -1,26 +1,27 @@
-namespace AspNetCore.ProblemDetails.UnitTests
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading.Tasks;
+using FluentAssertions;
+using Fluxera.Extensions.Validation;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.TestHost;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Mock;
+using Microsoft.Net.Http.Headers;
+using Moq;
+using NUnit.Framework;
+using ProblemDetailsOptions = MadEyeMatt.AspNetCore.ProblemDetails.ProblemDetailsOptions;
+
+namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
 {
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Net;
-	using System.Net.Http;
-	using System.Threading.Tasks;
-	using FluentAssertions;
-	using Fluxera.Extensions.Validation;
-	using Microsoft.AspNetCore.Builder;
-	using Microsoft.AspNetCore.Hosting;
-	using Microsoft.AspNetCore.Http;
-	using Microsoft.AspNetCore.Mvc;
-	using Microsoft.AspNetCore.Mvc.ModelBinding;
-	using Microsoft.AspNetCore.TestHost;
-	using Microsoft.Extensions.DependencyInjection;
-	using Microsoft.Extensions.Hosting;
-	using Microsoft.Extensions.Logging;
-	using Microsoft.Extensions.Logging.Mock;
-	using Microsoft.Net.Http.Headers;
-	using Moq;
-	using NUnit.Framework;
 	using NameValueHeaderValue = System.Net.Http.Headers.NameValueHeaderValue;
 
 	[TestFixture]
@@ -367,7 +368,7 @@ namespace AspNetCore.ProblemDetails.UnitTests
 			{
 				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
 
-				ProblemDetails problemDetails = response.Should().BeProblemDetails(expectExceptionDetails);
+				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = response.Should().BeProblemDetails(expectExceptionDetails);
 				problemDetails.Extensions.ContainsKey("exception").Should().Be(expectExceptionDetails);
 			}
 		}
@@ -440,7 +441,7 @@ namespace AspNetCore.ProblemDetails.UnitTests
 				HttpResponseMessage response = await httpClient.GetAsync(string.Empty);
 
 				response.Should().HaveStatusCode(HttpStatusCode.BadRequest);
-				ProblemDetails problemDetails = response.Should().BeProblemDetails(true);
+				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = response.Should().BeProblemDetails(true);
 				problemDetails?.Extensions.Should().ContainKey("errors");
 			}
 		}

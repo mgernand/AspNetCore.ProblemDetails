@@ -1,23 +1,23 @@
-﻿namespace AspNetCore.ProblemDetails
-{
-	using System;
-	using System.Collections.Generic;
-	using System.Diagnostics;
-	using System.Net;
-	using System.Runtime.ExceptionServices;
-	using System.Threading.Tasks;
-	using Microsoft.AspNetCore.Diagnostics;
-	using Microsoft.AspNetCore.Http;
-	using Microsoft.AspNetCore.Mvc;
-	using Microsoft.AspNetCore.Mvc.Abstractions;
-	using Microsoft.AspNetCore.Mvc.Infrastructure;
-	using Microsoft.AspNetCore.Routing;
-	using Microsoft.Extensions.Logging;
-	using Microsoft.Extensions.Options;
-	using Microsoft.Extensions.Primitives;
-	using Microsoft.Net.Http.Headers;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Net;
+using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
+using Microsoft.Net.Http.Headers;
 
-	internal sealed class ProblemDetailsMiddleware
+namespace MadEyeMatt.AspNetCore.ProblemDetails
+{
+    internal sealed class ProblemDetailsMiddleware
 	{
 		private const string DiagnosticListenerKey = "Microsoft.AspNetCore.Diagnostics.HandledException";
 
@@ -96,7 +96,7 @@
 			PrepareResponse(httpContext, httpContext.Response.StatusCode);
 
 			// Create the problem details response object.
-			ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(httpContext, httpContext.Response.StatusCode);
+			Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(httpContext, httpContext.Response.StatusCode);
 
 			// Write the result and complete the response.
 			await this.WriteProblemDetailsAsync(httpContext, problemDetails);
@@ -130,7 +130,7 @@
 				httpContext.Features.Set<IExceptionHandlerFeature>(feature);
 
 				// Create the problem details response object.
-				ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(httpContext, exception);
+				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(httpContext, exception);
 
 				if(problemDetails is not null)
 				{
@@ -175,7 +175,7 @@
 			exceptionDispatchInfo.Throw();
 		}
 
-		private async Task WriteProblemDetailsAsync(HttpContext httpContext, ProblemDetails problemDetails)
+		private async Task WriteProblemDetailsAsync(HttpContext httpContext, Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails)
 		{
 			RouteData routeData = httpContext.GetRouteData();
 			ActionContext actionContext = new ActionContext(httpContext, routeData, new ActionDescriptor());

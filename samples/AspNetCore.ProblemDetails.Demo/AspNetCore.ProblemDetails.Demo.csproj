@@ -1,14 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
 	<PropertyGroup>
-		<TargetFramework>net6.0</TargetFramework>
+		<TargetFramework>net7.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
+		<AssemblyName>MadEyeMatt.$(MSBuildProjectName)</AssemblyName>
+		<RootNamespace>MadEyeMatt.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Fluxera.Extensions.Validation.Abstractions" Version="6.1.7" />
+	  <PackageReference Include="Fluxera.Extensions.Validation.Abstractions" Version="7.0.2" />
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
 	</ItemGroup>
 
