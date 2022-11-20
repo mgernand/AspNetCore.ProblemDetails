@@ -1,24 +1,23 @@
-namespace AspNetCore.ProblemDetails.UnitTests
-{
-	using System;
-	using System.Net.Http;
-	using System.Net.Http.Json;
-	using System.Text.Json;
-	using FluentAssertions;
-	using FluentAssertions.Primitives;
-	using Fluxera.Utilities;
-	using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json;
+using FluentAssertions;
+using FluentAssertions.Primitives;
+using Fluxera.Utilities;
 
-	internal static class HttpResponseMessageAssertionsExtensions
+namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
+{
+    internal static class HttpResponseMessageAssertionsExtensions
 	{
-		public static ProblemDetails BeProblemDetails(this HttpResponseMessageAssertions should, bool expectExceptionDetails)
+		public static Microsoft.AspNetCore.Mvc.ProblemDetails BeProblemDetails(this HttpResponseMessageAssertions should, bool expectExceptionDetails)
 		{
 			HttpResponseMessage httpResponseMessage = should.Subject;
 
 			httpResponseMessage.Content.Headers.ContentType.Should().NotBeNull();
 			httpResponseMessage.Content.Headers.ContentType?.MediaType.Should().Be("application/problem+json");
 
-			ProblemDetails problemDetails = AsyncHelper.RunSync(() => httpResponseMessage.Content.ReadFromJsonAsync<ProblemDetails>());
+			Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = AsyncHelper.RunSync(() => httpResponseMessage.Content.ReadFromJsonAsync<Microsoft.AspNetCore.Mvc.ProblemDetails>());
 
 			string json = JsonSerializer.Serialize(problemDetails, new JsonSerializerOptions
 			{

@@ -1,18 +1,18 @@
-﻿namespace AspNetCore.ProblemDetails
-{
-	using System;
-	using System.Collections.Generic;
-	using System.Linq;
-	using System.Reflection;
-	using Microsoft.AspNetCore.Mvc;
-	using Microsoft.AspNetCore.Mvc.ApplicationModels;
-	using Microsoft.AspNetCore.Mvc.Infrastructure;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
-	internal sealed class ProblemDetailsApplicationModelProvider : IApplicationModelProvider
+namespace MadEyeMatt.AspNetCore.ProblemDetails
+{
+    internal sealed class ProblemDetailsApplicationModelProvider : IApplicationModelProvider
 	{
 		public ProblemDetailsApplicationModelProvider()
 		{
-			ProducesErrorResponseTypeAttribute defaultErrorResponseType = new ProducesErrorResponseTypeAttribute(typeof(ProblemDetails));
+			ProducesErrorResponseTypeAttribute defaultErrorResponseType = new ProducesErrorResponseTypeAttribute(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails));
 
 			this.ActionModelConventions = new List<IActionModelConvention>
 			{

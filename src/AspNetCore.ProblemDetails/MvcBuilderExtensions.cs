@@ -1,15 +1,15 @@
-﻿namespace AspNetCore.ProblemDetails
-{
-	using System;
-	using Fluxera.Extensions.DependencyInjection;
-	using JetBrains.Annotations;
-	using Microsoft.AspNetCore.Mvc;
-	using Microsoft.AspNetCore.Mvc.ApplicationModels;
-	using Microsoft.AspNetCore.Mvc.Infrastructure;
-	using Microsoft.AspNetCore.WebUtilities;
-	using Microsoft.Extensions.DependencyInjection;
+﻿using System;
+using Fluxera.Extensions.DependencyInjection;
+using JetBrains.Annotations;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
 
-	/// <summary>
+namespace MadEyeMatt.AspNetCore.ProblemDetails
+{
+    /// <summary>
 	///     Extensions methods for the <see cref="IMvcBuilder" /> type.
 	/// </summary>
 	[PublicAPI]

@@ -1,11 +1,11 @@
-﻿namespace AspNetCore.ProblemDetails.UnitTests
-{
-	using System;
-	using System.ComponentModel.DataAnnotations;
-	using System.Net;
-	using Microsoft.AspNetCore.Mvc;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.Net;
+using Microsoft.AspNetCore.Mvc;
 
-	[ApiController]
+namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
+{
+    [ApiController]
 	[Route("api")]
 	public class TestController : ControllerBase
 	{
@@ -37,7 +37,7 @@
 		[HttpGet("problem-model")]
 		public ActionResult ProblemModel()
 		{
-			ProblemDetails problemDetails = this.ProblemDetailsFactory.CreateProblemDetails(this.HttpContext,
+			Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.ProblemDetailsFactory.CreateProblemDetails(this.HttpContext,
 				(int)HttpStatusCode.TooManyRequests,
 				"A title");
 

@@ -1,9 +1,9 @@
-﻿namespace AspNetCore.ProblemDetails
-{
-	using Fluxera.Guards;
-	using Microsoft.AspNetCore.Http;
+﻿using Fluxera.Guards;
+using Microsoft.AspNetCore.Http;
 
-	internal static class HttpResponseExtensions
+namespace MadEyeMatt.AspNetCore.ProblemDetails
+{
+    internal static class HttpResponseExtensions
 	{
 		public static bool HasProblem(this HttpResponse response)
 		{

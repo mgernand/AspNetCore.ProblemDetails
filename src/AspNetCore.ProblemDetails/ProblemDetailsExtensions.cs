@@ -1,20 +1,20 @@
-﻿namespace AspNetCore.ProblemDetails
-{
-	using System;
-	using System.Collections.Generic;
-	using Microsoft.AspNetCore.Mvc;
-	using Microsoft.AspNetCore.Mvc.Formatters;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 
-	internal static class ProblemDetailsExtensions
+namespace MadEyeMatt.AspNetCore.ProblemDetails
+{
+    internal static class ProblemDetailsExtensions
 	{
-		public static void AddExceptionDetails(this ProblemDetails problemDetails, Exception exception)
+		public static void AddExceptionDetails(this Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails, Exception exception)
 		{
 			problemDetails.Detail ??= exception.Message;
 			problemDetails.Instance ??= GetHelpLink(exception);
 			problemDetails.Extensions.TryAdd("exception", GetExceptionDetails(exception));
 		}
 
-		public static ObjectResult CreateResult(this ProblemDetails problemDetails)
+		public static ObjectResult CreateResult(this Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails)
 		{
 			ObjectResult result = new ObjectResult(problemDetails)
 			{
