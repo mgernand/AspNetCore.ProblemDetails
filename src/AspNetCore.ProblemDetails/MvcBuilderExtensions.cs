@@ -1,15 +1,17 @@
-﻿using System;
-using Fluxera.Extensions.DependencyInjection;
-using JetBrains.Annotations;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails
 {
-    /// <summary>
+	using System;
+	using System.Linq;
+	using JetBrains.Annotations;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc.ApplicationModels;
+	using Microsoft.AspNetCore.Mvc.Infrastructure;
+	using Microsoft.AspNetCore.WebUtilities;
+	using Microsoft.Extensions.DependencyInjection;
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Options;
+
+	/// <summary>
 	///     Extensions methods for the <see cref="IMvcBuilder" /> type.
 	/// </summary>
 	[PublicAPI]
@@ -54,9 +56,19 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 			});
 
 			// Decorate the default problem detail factory.
-			builder.Services
-				.Decorate<ProblemDetailsFactory>()
-				.With<CustomProblemDetailsFactory>();
+			ServiceDescriptor serviceDescriptor = builder.Services.FirstOrDefault(x => x.ServiceType == typeof(ProblemDetailsFactory));
+			Type defaultProblemDetailsFactoryType = serviceDescriptor.ImplementationType;
+
+			builder.Services.AddTransient(defaultProblemDetailsFactoryType);
+			builder.Services.AddTransient<CustomProblemDetailsFactory>();
+			builder.Services.AddTransient<ProblemDetailsFactory>(serviceProvider =>
+			{
+				IOptions<ProblemDetailsOptions> options = serviceProvider.GetRequiredService<IOptions<ProblemDetailsOptions>>();
+				ILogger<ProblemDetailsFactory> logger = serviceProvider.GetRequiredService<ILogger<ProblemDetailsFactory>>();
+				ProblemDetailsFactory defaultProblemDetailsFactory = (ProblemDetailsFactory)serviceProvider.GetRequiredService(defaultProblemDetailsFactoryType);
+
+				return new CustomProblemDetailsFactory(options, logger, defaultProblemDetailsFactory);
+			});
 
 			// Add a ProducesErrorResponseTypeAttribute to all actions with in controllers with an ApiControllerAttribute
 			// Add a result filter that transforms ObjectResult containing a string to ProblemDetails responses.

@@ -1,11 +1,11 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using Microsoft.AspNetCore.Mvc;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
 {
-    [ApiController]
+	using System;
+	using System.ComponentModel.DataAnnotations;
+	using System.Net;
+	using Microsoft.AspNetCore.Mvc;
+
+	[ApiController]
 	[Route("api")]
 	public class TestController : ControllerBase
 	{

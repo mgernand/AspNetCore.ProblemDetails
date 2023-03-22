@@ -1,23 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Runtime.ExceptionServices;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
-using Microsoft.Net.Http.Headers;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails
 {
-    internal sealed class ProblemDetailsMiddleware
+	using System;
+	using System.Collections.Generic;
+	using System.Diagnostics;
+	using System.Net;
+	using System.Runtime.ExceptionServices;
+	using System.Threading.Tasks;
+	using Microsoft.AspNetCore.Diagnostics;
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc.Abstractions;
+	using Microsoft.AspNetCore.Mvc.Infrastructure;
+	using Microsoft.AspNetCore.Routing;
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Options;
+	using Microsoft.Extensions.Primitives;
+	using Microsoft.Net.Http.Headers;
+
+	internal sealed class ProblemDetailsMiddleware
 	{
 		private const string DiagnosticListenerKey = "Microsoft.AspNetCore.Diagnostics.HandledException";
 
@@ -96,7 +96,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 			PrepareResponse(httpContext, httpContext.Response.StatusCode);
 
 			// Create the problem details response object.
-			Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(httpContext, httpContext.Response.StatusCode);
+			ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(httpContext, httpContext.Response.StatusCode);
 
 			// Write the result and complete the response.
 			await this.WriteProblemDetailsAsync(httpContext, problemDetails);
@@ -130,7 +130,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 				httpContext.Features.Set<IExceptionHandlerFeature>(feature);
 
 				// Create the problem details response object.
-				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(httpContext, exception);
+				ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(httpContext, exception);
 
 				if(problemDetails is not null)
 				{

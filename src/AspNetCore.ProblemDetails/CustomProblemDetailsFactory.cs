@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using JetBrains.Annotations;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails
 {
-    [UsedImplicitly]
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Net;
+	using JetBrains.Annotations;
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc.Infrastructure;
+	using Microsoft.AspNetCore.Mvc.ModelBinding;
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Options;
+
+	[UsedImplicitly]
 	internal sealed class CustomProblemDetailsFactory : ProblemDetailsFactory
 	{
 		private readonly ProblemDetailsFactory defaultProblemDetailsFactory;
@@ -30,7 +30,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 		}
 
 		/// <inheritdoc />
-		public override Microsoft.AspNetCore.Mvc.ProblemDetails CreateProblemDetails(HttpContext httpContext, int? statusCode = null, string title = null, string type = null, string detail = null, string instance = null)
+		public override ProblemDetails CreateProblemDetails(HttpContext httpContext, int? statusCode = null, string title = null, string type = null, string detail = null, string instance = null)
 		{
 			return this.defaultProblemDetailsFactory.CreateProblemDetails(httpContext, statusCode, title, type, detail, instance);
 		}
@@ -41,9 +41,9 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 			return this.defaultProblemDetailsFactory.CreateValidationProblemDetails(httpContext, modelStateDictionary, statusCode, title, type, detail, instance);
 		}
 
-		internal Microsoft.AspNetCore.Mvc.ProblemDetails CreateProblemDetails(HttpContext httpContext, Exception exception)
+		internal ProblemDetails CreateProblemDetails(HttpContext httpContext, Exception exception)
 		{
-			Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.MapStatusCode(httpContext, exception);
+			ProblemDetails problemDetails = this.MapStatusCode(httpContext, exception);
 
 			// Add the exception details if requested.
 			if(this.options.IncludeExceptionDetails.Invoke(httpContext, exception))
@@ -54,7 +54,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 			return problemDetails;
 		}
 
-		private Microsoft.AspNetCore.Mvc.ProblemDetails MapProblemDetails(HttpContext httpContext, Exception exception, HttpStatusCode httpStatusCode)
+		private ProblemDetails MapProblemDetails(HttpContext httpContext, Exception exception, HttpStatusCode httpStatusCode)
 		{
 			if(!this.options.TryMapProblemDetails(httpContext, exception, httpStatusCode, this, out Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails))
 			{
@@ -64,7 +64,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 			return problemDetails;
 		}
 
-		private Microsoft.AspNetCore.Mvc.ProblemDetails MapStatusCode(HttpContext httpContext, Exception exception)
+		private ProblemDetails MapStatusCode(HttpContext httpContext, Exception exception)
 		{
 			// Try to map the exception to a configured status code.
 			if(this.options.TryMapStatusCode(httpContext, exception, out HttpStatusCode? httpStatusCode))
@@ -77,7 +77,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 					httpStatusCode = HttpStatusCode.OK;
 				}
 
-				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.MapProblemDetails(httpContext, exception, httpStatusCode.Value);
+				ProblemDetails problemDetails = this.MapProblemDetails(httpContext, exception, httpStatusCode.Value);
 				httpContext.Response.StatusCode = (int)httpStatusCode.Value;
 
 				return problemDetails;

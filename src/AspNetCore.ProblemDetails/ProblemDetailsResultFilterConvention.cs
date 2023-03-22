@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails
 {
-    internal sealed class ProblemDetailsResultFilterConvention : IActionModelConvention
+	using Microsoft.AspNetCore.Mvc.ApplicationModels;
+
+	internal sealed class ProblemDetailsResultFilterConvention : IActionModelConvention
 	{
 		private readonly ProblemDetailsResultFilterFactory factory = new ProblemDetailsResultFilterFactory();
 
