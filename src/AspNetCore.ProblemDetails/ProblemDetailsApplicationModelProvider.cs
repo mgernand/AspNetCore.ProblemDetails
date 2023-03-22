@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ApplicationModels;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails
 {
-    internal sealed class ProblemDetailsApplicationModelProvider : IApplicationModelProvider
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Reflection;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc.ApplicationModels;
+	using Microsoft.AspNetCore.Mvc.Infrastructure;
+
+	internal sealed class ProblemDetailsApplicationModelProvider : IApplicationModelProvider
 	{
 		public ProblemDetailsApplicationModelProvider()
 		{
-			ProducesErrorResponseTypeAttribute defaultErrorResponseType = new ProducesErrorResponseTypeAttribute(typeof(Microsoft.AspNetCore.Mvc.ProblemDetails));
+			ProducesErrorResponseTypeAttribute defaultErrorResponseType = new ProducesErrorResponseTypeAttribute(typeof(ProblemDetails));
 
 			this.ActionModelConventions = new List<IActionModelConvention>
 			{

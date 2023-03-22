@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Fluxera.Extensions.Validation;
-using Microsoft.AspNetCore.Mvc;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails.Demo.Controllers
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails.Demo.Controllers
 {
-    [ApiController]
+	using System;
+	using System.Collections.Generic;
+	using Fluxera.Extensions.Validation;
+	using Microsoft.AspNetCore.Mvc;
+
+	[ApiController]
 	[Route("api")]
 	public class DemoApiController : ControllerBase
 	{

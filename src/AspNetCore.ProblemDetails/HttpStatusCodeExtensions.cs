@@ -1,8 +1,8 @@
-﻿using System.Net;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails
 {
-    internal static class HttpStatusCodeExtensions
+	using System.Net;
+
+	internal static class HttpStatusCodeExtensions
 	{
 		/// <summary>
 		///     A status code between (including) 400 and 599 is considered a problem.

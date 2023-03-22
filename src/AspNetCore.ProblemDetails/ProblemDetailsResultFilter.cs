@@ -1,13 +1,13 @@
-﻿using System;
-using System.Net;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
-using Microsoft.Extensions.Options;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails
 {
-    internal sealed class ProblemDetailsResultFilter : IAlwaysRunResultFilter, IOrderedFilter
+	using System;
+	using System.Net;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc.Filters;
+	using Microsoft.AspNetCore.Mvc.Infrastructure;
+	using Microsoft.Extensions.Options;
+
+	internal sealed class ProblemDetailsResultFilter : IAlwaysRunResultFilter, IOrderedFilter
 	{
 		private readonly ProblemDetailsOptions options;
 		private readonly CustomProblemDetailsFactory problemDetailsFactory;
@@ -29,7 +29,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 				return;
 			}
 
-			if(result.Value is Microsoft.AspNetCore.Mvc.ProblemDetails)
+			if(result.Value is ProblemDetails)
 			{
 				return;
 			}
@@ -38,7 +38,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 			// ObjectResult(ModelState) which indicates a validation error.
 			if(result.Value is SerializableError error)
 			{
-				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, error, result.StatusCode);
+				ProblemDetails problemDetails = this.problemDetailsFactory.CreateValidationProblemDetails(context.HttpContext, error, result.StatusCode);
 				context.Result = problemDetails.CreateResult();
 				return;
 			}
@@ -52,7 +52,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 			// If the result is a string, we treat it as the "detail" property.
 			if(result.Value is string detail)
 			{
-				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, result.StatusCode, detail: detail);
+				ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, result.StatusCode, detail: detail);
 				context.Result = problemDetails.CreateResult();
 				return;
 			}
@@ -63,7 +63,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails
 				// Set the response status code because it might be used for mapping inside the factory.
 				context.HttpContext.Response.StatusCode = result.StatusCode ?? (int)HttpStatusCode.InternalServerError;
 
-				Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, exception);
+				ProblemDetails problemDetails = this.problemDetailsFactory.CreateProblemDetails(context.HttpContext, exception);
 
 				// Developers may choose to ignore errors by returning null.
 				if(problemDetails is null)

@@ -10,7 +10,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Fluxera.Extensions.Validation.Abstractions" Version="7.1.0" />
+	  <PackageReference Include="Fluxera.Extensions.Validation.Abstractions" Version="7.1.2" />
 	  <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
 	</ItemGroup>
 

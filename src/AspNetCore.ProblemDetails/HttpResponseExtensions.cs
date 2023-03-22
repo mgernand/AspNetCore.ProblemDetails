@@ -1,13 +1,13 @@
-﻿using Fluxera.Guards;
-using Microsoft.AspNetCore.Http;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails
 {
-    internal static class HttpResponseExtensions
+	using System;
+	using Microsoft.AspNetCore.Http;
+
+	internal static class HttpResponseExtensions
 	{
 		public static bool HasProblem(this HttpResponse response)
 		{
-			Guard.Against.Null(response);
+			ArgumentNullException.ThrowIfNull(response);
 
 			if(!response.StatusCode.IsProblemStatusCode())
 			{

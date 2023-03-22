@@ -1,11 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
-
-namespace MadEyeMatt.AspNetCore.ProblemDetails
+﻿namespace MadEyeMatt.AspNetCore.ProblemDetails
 {
-    internal static class ProblemDetailsExtensions
+	using System;
+	using System.Collections.Generic;
+	using Microsoft.AspNetCore.Mvc;
+	using Microsoft.AspNetCore.Mvc.Formatters;
+
+	internal static class ProblemDetailsExtensions
 	{
 		public static void AddExceptionDetails(this Microsoft.AspNetCore.Mvc.ProblemDetails problemDetails, Exception exception)
 		{

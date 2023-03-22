@@ -1,14 +1,14 @@
-using System;
-using System.Net;
-using Fluxera.Extensions.Validation;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-
 namespace MadEyeMatt.AspNetCore.ProblemDetails.Demo
 {
-    public static class Program
+	using System;
+	using System.Net;
+	using Fluxera.Extensions.Validation;
+	using Microsoft.AspNetCore.Builder;
+	using Microsoft.AspNetCore.Mvc.ModelBinding;
+	using Microsoft.Extensions.DependencyInjection;
+	using Microsoft.Extensions.Hosting;
+
+	public static class Program
 	{
 		public static void Main(string[] args)
 		{

@@ -1,28 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using FluentAssertions;
-using Fluxera.Extensions.Validation;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Mock;
-using Microsoft.Net.Http.Headers;
-using Moq;
-using NUnit.Framework;
-using ProblemDetailsOptions = MadEyeMatt.AspNetCore.ProblemDetails.ProblemDetailsOptions;
-
 namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
 {
+	using System;
+	using System.Collections.Generic;
+	using System.Linq;
+	using System.Net;
+	using System.Net.Http;
+	using System.Threading.Tasks;
+	using FluentAssertions;
+	using Fluxera.Extensions.Validation;
+	using Microsoft.AspNetCore.Builder;
+	using Microsoft.AspNetCore.Hosting;
+	using Microsoft.AspNetCore.Http;
+	using Microsoft.AspNetCore.Mvc.ModelBinding;
+	using Microsoft.AspNetCore.TestHost;
+	using Microsoft.Extensions.DependencyInjection;
+	using Microsoft.Extensions.Hosting;
+	using Microsoft.Extensions.Logging;
+	using Microsoft.Extensions.Logging.Mock;
+	using Microsoft.Net.Http.Headers;
+	using Moq;
+	using NUnit.Framework;
 	using NameValueHeaderValue = System.Net.Http.Headers.NameValueHeaderValue;
+	using ProblemDetailsOptions = MadEyeMatt.AspNetCore.ProblemDetails.ProblemDetailsOptions;
 
 	[TestFixture]
 	public class ProblemDetailsMiddlewareTests
