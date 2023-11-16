@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net7.0</TargetFramework>
+		<TargetFramework>net8.0</TargetFramework>
 		<LangVersion>latest</LangVersion>
 		<Nullable>disable</Nullable>
 		<ImplicitUsings>disable</ImplicitUsings>
@@ -14,9 +14,9 @@
 		<RootNamespace>MadEyeMatt.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 		<IncludeSymbols>false</IncludeSymbols>
 		<Copyright>Copyright © 2022-2023 Matthias Gernand. All rights reserved.</Copyright>
-		<Version>7.2.0</Version>
-		<AssemblyVersion>7.2.0</AssemblyVersion>
-		<FileVersion>7.2.0</FileVersion>
+		<Version>8.0.0</Version>
+		<AssemblyVersion>8.0.0</AssemblyVersion>
+		<FileVersion>8.0.0</FileVersion>
 		<Authors>Matthias Gernand</Authors>
 		<Description>A middleware to create RFC 7807 problem details for APIs.</Description>
 		<NeutralLanguage>en</NeutralLanguage>
@@ -50,7 +50,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
+		<PackageReference Include="JetBrains.Annotations" Version="2023.3.0" />
 	</ItemGroup>
 
 </Project>
