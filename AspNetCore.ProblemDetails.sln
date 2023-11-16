@@ -15,11 +15,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{24F9
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9BE8804F-BCC0-48CF-9AEC-ED97414B0C78}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.ProblemDetails", "src\AspNetCore.ProblemDetails\AspNetCore.ProblemDetails.csproj", "{34690458-D9F2-4458-8B07-1593D93DB16A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.ProblemDetails", "src\AspNetCore.ProblemDetails\AspNetCore.ProblemDetails.csproj", "{34690458-D9F2-4458-8B07-1593D93DB16A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.ProblemDetails.Demo", "samples\AspNetCore.ProblemDetails.Demo\AspNetCore.ProblemDetails.Demo.csproj", "{1B48CAB0-0189-42D4-8F11-F5CE1C4FA347}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.ProblemDetails.Demo", "samples\AspNetCore.ProblemDetails.Demo\AspNetCore.ProblemDetails.Demo.csproj", "{1B48CAB0-0189-42D4-8F11-F5CE1C4FA347}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetCore.ProblemDetails.UnitTests", "tests\AspNetCore.ProblemDetails.UnitTests\AspNetCore.ProblemDetails.UnitTests.csproj", "{BE218920-DF2B-4C27-A23B-F307D79ADF0E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AspNetCore.ProblemDetails.UnitTests", "tests\AspNetCore.ProblemDetails.UnitTests\AspNetCore.ProblemDetails.UnitTests.csproj", "{BE218920-DF2B-4C27-A23B-F307D79ADF0E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
