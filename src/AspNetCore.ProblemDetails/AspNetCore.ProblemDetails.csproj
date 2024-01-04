@@ -13,7 +13,7 @@
 		<AssemblyName>MadEyeMatt.$(MSBuildProjectName)</AssemblyName>
 		<RootNamespace>MadEyeMatt.$(MSBuildProjectName.Replace(" ", "_"))</RootNamespace>
 		<IncludeSymbols>false</IncludeSymbols>
-		<Copyright>Copyright © 2022-2023 Matthias Gernand. All rights reserved.</Copyright>
+		<Copyright>Copyright © 2022-2024 Matthias Gernand. All rights reserved.</Copyright>
 		<Version>8.0.1</Version>
 		<AssemblyVersion>8.0.1</AssemblyVersion>
 		<FileVersion>8.0.1</FileVersion>
