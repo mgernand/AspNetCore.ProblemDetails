@@ -2,6 +2,8 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.Demo
 {
 	using System;
 	using System.Net;
+	using FluentValidation;
+	using FluentValidation.Results;
 	using Fluxera.Extensions.Validation;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -32,18 +34,15 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.Demo
 					// Use the status code 405 for this type of exception.
 					options.MapStatusCode<InvalidOperationException>(HttpStatusCode.MethodNotAllowed);
 
-					// Use the status code 400 withe the details factory for this type of exception.
+					// Use the status code 400 with the details factory for this type of exception.
 					options.MapStatusCode<ValidationException>(HttpStatusCode.BadRequest,
 						(context, exception, httpStatusCode, problemDetailsFactory) =>
 						{
 							ModelStateDictionary modelState = new ModelStateDictionary();
 
-							foreach(ValidationError validationError in exception.Errors)
+							foreach(ValidationFailure validationError in exception.Errors)
 							{
-								foreach(string errorMessage in validationError.ErrorMessages)
-								{
-									modelState.AddModelError(validationError.PropertyName, errorMessage);
-								}
+								modelState.AddModelError(validationError.PropertyName, validationError.ErrorMessage);
 							}
 
 							return problemDetailsFactory.CreateValidationProblemDetails(context, modelState, (int)httpStatusCode);
