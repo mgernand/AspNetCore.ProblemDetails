@@ -33,7 +33,7 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.Demo
 					// Use the status code 405 for this type of exception.
 					options.MapStatusCode<InvalidOperationException>(HttpStatusCode.MethodNotAllowed);
 
-					// Use the status code 400 withe the details factory for this type of exception.
+					// Use the status code 400 with the details factory for this type of exception.
 					options.MapStatusCode<ValidationException>(HttpStatusCode.BadRequest,
 						(context, exception, httpStatusCode, problemDetailsFactory) =>
 						{
