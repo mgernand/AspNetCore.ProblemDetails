@@ -2,7 +2,8 @@
 {
 	using System;
 	using System.Collections.Generic;
-	using Fluxera.Extensions.Validation;
+	using FluentValidation;
+	using FluentValidation.Results;
 	using Microsoft.AspNetCore.Mvc;
 
 	[ApiController]
@@ -65,18 +66,12 @@
 		[HttpGet("validation/exception")]
 		public IActionResult ValidationException()
 		{
-			ICollection<ValidationError> errors = new List<ValidationError>
+			ICollection<ValidationFailure> errors = new List<ValidationFailure>
 			{
-				new ValidationError("property")
-				{
-					ErrorMessages =
-					{
-						"This property's validation failed. - 1",
-						"This property's validation failed. - 2",
-						"This property's validation failed. - 3",
-						"This property's validation failed. - 4"
-					}
-				}
+				new ValidationFailure("property", "This property's validation failed. - 1"),
+				new ValidationFailure("property", "This property's validation failed. - 2"),
+				new ValidationFailure("property", "This property's validation failed. - 3"),
+				new ValidationFailure("property", "This property's validation failed. - 4"),
 			};
 
 			throw new ValidationException(errors);

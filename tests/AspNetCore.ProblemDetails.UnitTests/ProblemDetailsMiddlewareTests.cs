@@ -7,7 +7,8 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
 	using System.Net.Http;
 	using System.Threading.Tasks;
 	using FluentAssertions;
-	using Fluxera.Extensions.Validation;
+	using FluentValidation;
+	using FluentValidation.Results;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Hosting;
 	using Microsoft.AspNetCore.Http;
@@ -400,18 +401,12 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
 		[Test]
 		public async Task ShouldMapCustomProblemDetails()
 		{
-			ICollection<ValidationError> errors = new List<ValidationError>
+			ICollection<ValidationFailure> errors = new List<ValidationFailure>
 			{
-				new ValidationError("property")
-				{
-					ErrorMessages =
-					{
-						"This property's validation failed. - 1",
-						"This property's validation failed. - 2",
-						"This property's validation failed. - 3",
-						"This property's validation failed. - 4"
-					}
-				}
+				new ValidationFailure("property", "This property's validation failed. - 1"),
+				new ValidationFailure("property", "This property's validation failed. - 2"),
+				new ValidationFailure("property", "This property's validation failed. - 3"),
+				new ValidationFailure("property", "This property's validation failed. - 4"),
 			};
 
 			ValidationException validationException = new ValidationException(errors);
@@ -425,12 +420,9 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
 							  {
 								  ModelStateDictionary modelState = new ModelStateDictionary();
 
-								  foreach(ValidationError validationError in exception.Errors)
+								  foreach(ValidationFailure validationError in exception.Errors)
 								  {
-									  foreach(string errorMessage in validationError.ErrorMessages)
-									  {
-										  modelState.AddModelError(validationError.PropertyName, errorMessage);
-									  }
+									  modelState.AddModelError(validationError.PropertyName, validationError.ErrorMessage);
 								  }
 
 								  return problemDetailsFactory.CreateValidationProblemDetails(context, modelState, (int)httpStatusCode);

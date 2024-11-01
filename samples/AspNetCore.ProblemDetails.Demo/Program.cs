@@ -2,7 +2,8 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.Demo
 {
 	using System;
 	using System.Net;
-	using Fluxera.Extensions.Validation;
+	using FluentValidation;
+	using FluentValidation.Results;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Mvc.ModelBinding;
 	using Microsoft.Extensions.DependencyInjection;
@@ -38,12 +39,9 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.Demo
 						{
 							ModelStateDictionary modelState = new ModelStateDictionary();
 
-							foreach(ValidationError validationError in exception.Errors)
+							foreach(ValidationFailure validationError in exception.Errors)
 							{
-								foreach(string errorMessage in validationError.ErrorMessages)
-								{
-									modelState.AddModelError(validationError.PropertyName, errorMessage);
-								}
+								modelState.AddModelError(validationError.PropertyName, validationError.ErrorMessage);
 							}
 
 							return problemDetailsFactory.CreateValidationProblemDetails(context, modelState, (int)httpStatusCode);
