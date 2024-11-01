@@ -4,7 +4,6 @@
 	using System.Collections.Generic;
 	using FluentValidation;
 	using FluentValidation.Results;
-	using Fluxera.Extensions.Validation;
 	using Microsoft.AspNetCore.Mvc;
 
 	[ApiController]

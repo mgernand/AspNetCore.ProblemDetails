@@ -4,7 +4,6 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.Demo
 	using System.Net;
 	using FluentValidation;
 	using FluentValidation.Results;
-	using Fluxera.Extensions.Validation;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Mvc.ModelBinding;
 	using Microsoft.Extensions.DependencyInjection;

@@ -9,7 +9,6 @@ namespace MadEyeMatt.AspNetCore.ProblemDetails.UnitTests
 	using FluentAssertions;
 	using FluentValidation;
 	using FluentValidation.Results;
-	using Fluxera.Extensions.Validation;
 	using Microsoft.AspNetCore.Builder;
 	using Microsoft.AspNetCore.Hosting;
 	using Microsoft.AspNetCore.Http;
