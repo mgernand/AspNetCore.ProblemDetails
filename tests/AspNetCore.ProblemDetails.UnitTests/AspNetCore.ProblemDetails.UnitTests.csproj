@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net6.0;net7.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net8.0;net9.0</TargetFrameworks>
 		<ImplicitUsings>disable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<IsPackable>false</IsPackable>
@@ -10,14 +10,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Extensions.Logging.Mock" Version="1.2.4" />
-		<PackageReference Include="FluentAssertions" Version="6.12.1" />
-		<PackageReference Include="Fluxera.Extensions.Validation.Abstractions" Version="8.3.3" />
-		<PackageReference Include="Fluxera.Utilities" Version="8.2.2" />
+		<PackageReference Include="Extensions.Logging.Mock" Version="9.0.0" />
+		<PackageReference Include="FluentAssertions" Version="6.12.2" />
+		<PackageReference Include="Fluxera.Extensions.Validation.Abstractions" Version="8.3.4" />
+		<PackageReference Include="Fluxera.Utilities" Version="8.2.3" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
 		<PackageReference Include="NUnit" Version="4.2.2" />
 		<PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
-		<PackageReference Include="NUnit.Analyzers" Version="4.3.0">
+		<PackageReference Include="NUnit.Analyzers" Version="4.4.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -28,9 +28,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="[6.0.35]" Condition="'$(TargetFramework)' == 'net6.0'" />
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="[7.0.20]" Condition="'$(TargetFramework)' == 'net7.0'" />
-		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.10" Condition="'$(TargetFramework)' == 'net8.0'" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="[8.0.11]" Condition="'$(TargetFramework)' == 'net8.0'" />
+		<PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.0"  Condition="'$(TargetFramework)' == 'net9.0'" />
 	</ItemGroup>
 
 	<ItemGroup>
