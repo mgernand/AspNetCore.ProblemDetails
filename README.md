@@ -2,6 +2,7 @@
 
 A middleware to create RFC 7807 problem details for APIs.
 
+## This repository was moved to https://codeberg.org/mgernand/AspNetCore.ProblemDetails
 
 ## Usage
 
